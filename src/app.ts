@@ -1,7 +1,7 @@
 import express from 'express';
 
 import orderRoutes from './routes/orderRoutes';
-
+import paymentRoutes from './routes/paymentRoutes';
 
 const app=express();
 app.use(express.json());
@@ -11,6 +11,7 @@ app.use(express.json());
 // });
 
 app.use('/',orderRoutes);
+app.use('/',paymentRoutes);
 
 app.listen(3000,()=>{
     console.log('server is running on port 3k');
