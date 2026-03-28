@@ -2,19 +2,16 @@ import {Request,Response} from 'express';
 import {db} from '../config/db';
 
 export const initiatePayment=async(req:Request,res:Response)=>{
-    try{
+
         const {orderId}=req.body;
         const paymentId="pay_"+Date.now();
         const [result]=await db.query("INSERT INTO payments (order_id,payment_id,status) values (?,?,?)",[orderId,paymentId,'pending']);
         res.json({paymentId,'message':'Payment initiated now',result:result.insertId});
-    }catch(error){
-        return res.status(500).json({error:"internal server error"});
-
-    }
+  
 }
 
 export const paymentWebhook=async(req:Request,res:Response)=>{
-    try{
+
         const {paymentId,status}=req.body;
         const [rows]:any=await db.query("SELECT * from payments where payment_id=?",[paymentId]);
 
@@ -39,8 +36,5 @@ export const paymentWebhook=async(req:Request,res:Response)=>{
             return res.status(400).json({error:'Failed to update payment status'});
         }
         return res.json({result:updateResult,message:'payment processed successfully'});
-    }catch(error){
-
-        return res.status(500).json({error:'Internal server error'});
-    }
+    
 }

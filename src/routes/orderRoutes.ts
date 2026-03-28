@@ -1,13 +1,15 @@
 import express from 'express';
 import {createOrder,getOrders,getOrderById} from '../controllers/orderController';
-import {initiatePayment,paymentWebhook} from '../controllers/paymentController';
 
+import {asyncHandler} from '../utils/asyncHandler';
 const router=express.Router();
 
-router.post('/order/create',createOrder);
-router.get('/order/list',getOrders);
-router.get('/order/:id',getOrderById);
+router.post('/orders',asyncHandler(createOrder));
+router.get('/orders',asyncHandler(getOrders));
+router.get('/orders/:id',asyncHandler(getOrderById));
 // router.post('/initiate',initiatePayment);
 // router.post('/webhook',paymentWebhook);
+
+
 
 export default router;
