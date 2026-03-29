@@ -6,9 +6,10 @@ export const validate=(schema:ZodSchema)=>{
     return (req:Request,res:Response,next:NextFunction)=>{
         const result=schema.safeParse(req.body);
         if(!result.success){
+    
             return res.status(400).json({
                 success:false,
-                error:result.error.errors[0].message
+                error:result.error.issues[0].message
             });
         }
 
