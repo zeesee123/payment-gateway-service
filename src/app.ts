@@ -7,12 +7,10 @@ import {errorHandler} from './middleware/errorHandler';
 const app=express();
 app.use(express.json());
 
-// app.get('/',(req,res)=>{
-//     res.send('test new');
-// });
 
-app.use('/',orderRoutes);
-app.use('/',paymentRoutes);
+
+app.use('/orders',orderRoutes);
+app.use('/payments',paymentRoutes);
 
 app.use(errorHandler);
 

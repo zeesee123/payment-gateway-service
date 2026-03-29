@@ -6,7 +6,8 @@ export const initiatePayment=async(req:Request,res:Response)=>{
         const {orderId}=req.body;
         const paymentId="pay_"+Date.now();
         const [result]=await db.query("INSERT INTO payments (order_id,payment_id,status) values (?,?,?)",[orderId,paymentId,'pending']);
-        res.json({paymentId,'message':'Payment initiated now',result:result.insertId});
+        
+        res.json({success:true,data:{result:result,paymentId,message:'Payment initiated now'}});
   
 }
 
@@ -16,25 +17,48 @@ export const paymentWebhook=async(req:Request,res:Response)=>{
         const [rows]:any=await db.query("SELECT * from payments where payment_id=?",[paymentId]);
 
         if(!paymentId||!status){
-            return res.status(400).json({error:"Invalid payload !!"});
+            return res.status(400).json({success:false,error:"Invalid payload !!"});
         }
         if(rows.length===0){
-            console.log('no such payment exists');
-            return res.status(404).json({error:'no such payment exists'});
+         
+            return res.status(404).json({success:false,error:'no such payment exists'});
         }
 
         if(rows[0].status==='success'){
-           return res.json({message:'payment already processed'});
+           return res.json({success:true,data:{message:'payment already processed'}});
         }
 
 
         const [updateResult]:any=await db.query("UPDATE payments set status=? where payment_id=?",['success',paymentId]);
 
-        console.log('updateResult',updateResult);
+ 
 
         if(updateResult.affectedRows===0){
             return res.status(400).json({error:'Failed to update payment status'});
         }
-        return res.json({result:updateResult,message:'payment processed successfully'});
+        return res.json({success:true,data:{message:'payment processed',result:updateResult}});
     
+}
+
+export const getPayments=async(req:Request,res:Response)=>{
+
+     const [result]:any=await db.query("SELECT * FROM payments");
+
+     if(result.length===0){
+        return res.status(404).json({success:false,error:'No payments found'});
+     }
+
+     return res.json({success:true,data:{result}});
+}
+
+
+export const getPaymentById=async(req:Request,res:Response)=>{
+
+    const [result]:any=await db.query("SELECT * FROM payments where payment_id=?",[req.params.id]);
+
+    if(result.length===0){
+        return res.status(404).json({success:false,error:'Payment not found'});
+    }
+
+    return res.json({success:true,data:{result:result[0]}});
 }
