@@ -16,15 +16,9 @@ export const paymentWebhook=async(req:Request,res:Response)=>{
         const {paymentId,status}=req.body;
         const [rows]:any=await db.query("SELECT * from payments where payment_id=?",[paymentId]);
 
-        if(!paymentId||!status){
-            return res.status(400).json({success:false,error:"Invalid payload"});
-        }
+        
 
-        const validStatus=['success','failed'];
-
-        if(!validStatus.includes(status)){
-            return res.status(400).json({success:false,error:'Invalid status'});
-        }
+       
 
         if(rows.length===0){
          
