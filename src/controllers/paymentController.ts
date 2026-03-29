@@ -17,8 +17,15 @@ export const paymentWebhook=async(req:Request,res:Response)=>{
         const [rows]:any=await db.query("SELECT * from payments where payment_id=?",[paymentId]);
 
         if(!paymentId||!status){
-            return res.status(400).json({success:false,error:"Invalid payload !!"});
+            return res.status(400).json({success:false,error:"Invalid payload"});
         }
+
+        const validStatus=['success','failed'];
+
+        if(!validStatus.includes(status)){
+            return res.status(400).json({success:false,error:'Invalid status'});
+        }
+
         if(rows.length===0){
          
             return res.status(404).json({success:false,error:'no such payment exists'});
@@ -29,12 +36,12 @@ export const paymentWebhook=async(req:Request,res:Response)=>{
         }
 
 
-        const [updateResult]:any=await db.query("UPDATE payments set status=? where payment_id=?",['success',paymentId]);
+        const [updateResult]:any=await db.query("UPDATE payments set status=? where payment_id=?",[status,paymentId]);
 
  
 
         if(updateResult.affectedRows===0){
-            return res.status(400).json({error:'Failed to update payment status'});
+            return res.status(400).json({success:false,error:'Failed to update payment status'});
         }
         return res.json({success:true,data:{message:'payment processed',result:updateResult}});
     
