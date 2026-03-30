@@ -1,6 +1,7 @@
 import {Request,Response} from 'express';
 import {db} from '../config/db';
 
+
 export const initiatePayment=async(req:Request,res:Response)=>{
 
         const {orderId}=req.body;
@@ -29,15 +30,26 @@ export const paymentWebhook=async(req:Request,res:Response)=>{
            return res.json({success:true,data:{message:'payment already processed'}});
         }
 
+        const connection=await db.getConnection();
 
-        const [updateResult]:any=await db.query("UPDATE payments set status=? where payment_id=?",[status,paymentId]);
+         try{
+            await connection.beginTransaction();
+            await connection.query("UPDATE payments set status=? where payment_id=?",[status,paymentId])
+            const orderStatus=status==='success'?'paid':'failed'
+            await connection.query("UPDATE orders set status=? where id=?",[orderStatus,rows[0].order_id]);
+            await connection.commit();
 
- 
+            return res.json({success:true,data:{message:'payment processed'}});
 
-        if(updateResult.affectedRows===0){
-            return res.status(400).json({success:false,error:'Failed to update payment status'});
+        }catch(error){
+
+            await connection.rollback();
+            throw error;
+
+        }finally{
+            connection.release();
         }
-        return res.json({success:true,data:{message:'payment processed',result:updateResult}});
+       
     
 }
 
