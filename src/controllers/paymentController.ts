@@ -1,5 +1,6 @@
 import {Request,Response} from 'express';
 import {db} from '../config/db';
+import {redis} from '../config/redis';
 
 
 export const initiatePayment=async(req:Request,res:Response)=>{
@@ -40,6 +41,8 @@ export const paymentWebhook=async(req:Request,res:Response)=>{
             const orderStatus=status==='success'?'paid':'failed'
             await connection.query("UPDATE orders set status=? where id=?",[orderStatus,rows[0].order_id]);
             await connection.commit();
+
+            await redis.del(`order:${rows[0].order_id}`);
 
             return res.json({success:true,data:{message:'payment processed'}});
 

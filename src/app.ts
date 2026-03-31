@@ -1,12 +1,20 @@
+import 'dotenv/config';
+
+
+
 import express from 'express';
 
 import orderRoutes from './routes/orderRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 import {errorHandler} from './middleware/errorHandler';
+import {rateLimiter} from './middleware/rateLimiter';
+
+
+
 
 const app=express();
 app.use(express.json());
-
+app.use(rateLimiter);
 
 
 app.use('/orders',orderRoutes);
