@@ -3,11 +3,12 @@ import {initiatePayment,paymentWebhook,getPaymentById,getPayments} from '../cont
 import {asyncHandler} from '../utils/asyncHandler';
 import {validate} from '../validators/validate';
 import {initiatePaymentSchema,webhookSchema} from '../validators/paymentValidator';
+import {verifySignature} from '../middleware/verifySIgnature';
 
 const router=express.Router();
 
 router.post('/initiate',validate(initiatePaymentSchema),asyncHandler(initiatePayment));
-router.post('/webhook',validate(webhookSchema),asyncHandler(paymentWebhook));
+router.post('/webhook',verifySignature,validate(webhookSchema),asyncHandler(paymentWebhook));
 router.get('/:id',asyncHandler(getPaymentById));
 router.get('/',asyncHandler(getPayments));
 

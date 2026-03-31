@@ -26,8 +26,10 @@ export const paymentWebhook=async(req:Request,res:Response)=>{
             return res.status(404).json({success:false,error:'no such payment exists'});
         }
 
-        if(rows[0].status==='success'){
-           return res.json({success:true,data:{message:'payment already processed'}});
+       
+
+        if(rows[0].status!=='pending'){
+            return res.json({success:true,data:{message:'payment already processed'}});
         }
 
         const connection=await db.getConnection();
