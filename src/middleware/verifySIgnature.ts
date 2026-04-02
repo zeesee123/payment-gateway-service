@@ -10,7 +10,7 @@ export const verifySignature=(req:Request,res:Response,next:NextFunction)=>{
         return res.status(401).json({success:false,error:'Missing signature'});
     }
 
-    const expectedSignature=crypto.createHmac('sha256',process.env.WEBHOOK_SECRET).update(JSON.stringify(req.body)).digest('hex');
+    const expectedSignature=crypto.createHmac('sha256',process.env.WEBHOOK_SECRET||'').update(JSON.stringify(req.body)).digest('hex');
 
     if(signature !==expectedSignature){
         

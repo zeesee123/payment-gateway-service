@@ -13,7 +13,7 @@ export const createOrder=async(req:Request,res:Response)=>{
         const {userId,amount}=req.body;
 
        
-        const[result]=await db.query("INSERT INTO orders (user_id,status,total_amount) values (?,?,?)",[userId,'pending',amount]);
+        const[result]:any=await db.query("INSERT INTO orders (user_id,status,total_amount) values (?,?,?)",[userId,'pending',amount]);
         
         return res.json({success:true,data:{orderId:result.insertId}});
     

@@ -23,6 +23,4 @@ app.use('/payments',paymentRoutes);
 
 app.use(errorHandler);
 
-app.listen(3000,()=>{
-    console.log('server is running on port 3k');
-})
+export default app;

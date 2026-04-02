@@ -36,7 +36,7 @@ const worker=new Worker('payment-processing',async(job)=>{
         connection.release();
     }
 
-},{connection:redis,attempts:3,backoff:{type:'exponential',delay:1000}});
+},{connection:redis});
 
 
 worker.on('completed',(job)=>{console.log(`Job ${job.id} completed`)});

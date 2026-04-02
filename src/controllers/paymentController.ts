@@ -42,7 +42,7 @@ export const paymentWebhook=async(req:Request,res:Response)=>{
             return res.json({success:true,data:{message:'payment already processed'}});
         }
 
-        await paymentQueue.add('payment-processing',{paymentId,status,orderId:rows[0].order_id});
+        await paymentQueue.add('payment-processing',{paymentId,status,orderId:rows[0].order_id},{attempts:3,backoff:{type:'exponential',delay:1000}});
 
      
         return res.json({success:true,data:{message:'Payment queued for processing'}});
