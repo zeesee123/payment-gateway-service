@@ -1,12 +1,21 @@
 import {Request,Response} from 'express';
 import {db} from '../config/db';
-import {redis} from '../config/redis';
+
+import {paymentQueue} from '../queues/paymentQueue';
 
 
 export const initiatePayment=async(req:Request,res:Response)=>{
 
         const {orderId}=req.body;
         const paymentId="pay_"+Date.now();
+
+        const [existing]:any=await db.query("SELECT * from payments where order_id=?",[orderId]);
+
+        if(existing.length>0){
+        
+            return res.json({success:true,data:{message:'Payment already initiated for this order'}});
+        }
+
         const [result]=await db.query("INSERT INTO payments (order_id,payment_id,status) values (?,?,?)",[orderId,paymentId,'pending']);
         
         res.json({success:true,data:{result:result,paymentId,message:'Payment initiated now'}});
@@ -33,27 +42,12 @@ export const paymentWebhook=async(req:Request,res:Response)=>{
             return res.json({success:true,data:{message:'payment already processed'}});
         }
 
-        const connection=await db.getConnection();
+        await paymentQueue.add('payment-processing',{paymentId,status,orderId:rows[0].order_id});
 
-         try{
-            await connection.beginTransaction();
-            await connection.query("UPDATE payments set status=? where payment_id=?",[status,paymentId])
-            const orderStatus=status==='success'?'paid':'failed'
-            await connection.query("UPDATE orders set status=? where id=?",[orderStatus,rows[0].order_id]);
-            await connection.commit();
+     
+        return res.json({success:true,data:{message:'Payment queued for processing'}});
 
-            await redis.del(`order:${rows[0].order_id}`);
-
-            return res.json({success:true,data:{message:'payment processed'}});
-
-        }catch(error){
-
-            await connection.rollback();
-            throw error;
-
-        }finally{
-            connection.release();
-        }
+     
        
     
 }
