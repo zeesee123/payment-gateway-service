@@ -8,7 +8,7 @@ import orderRoutes from './routes/orderRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 import {errorHandler} from './middleware/errorHandler';
 import {rateLimiter} from './middleware/rateLimiter';
-import'./workers/paymentWorker';
+// import'./workers/paymentWorker';
 
 
 

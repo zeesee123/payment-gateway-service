@@ -1,6 +1,8 @@
 import {z} from 'zod';
 
-export const initiatePaymentSchema=z.object({});
+export const initiatePaymentSchema=z.object({
+    orderId:z.number().int().positive()
+});
 
 export const webhookSchema=z.object({
 
